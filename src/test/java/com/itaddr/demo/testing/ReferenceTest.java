@@ -1,11 +1,10 @@
-package com.lbole.demo.testing;
+package com.itaddr.demo.testing;
 
-import com.lbole.common.tools.beans.TimeStamp;
-import com.lbole.common.tools.utils.ThreadUtil;
+import com.itaddr.common.tools.beans.TimeStamp;
+import com.itaddr.common.tools.utils.ThreadUtil;
 import org.junit.Test;
 
 import java.lang.ref.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**

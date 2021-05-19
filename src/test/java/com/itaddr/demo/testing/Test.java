@@ -1,4 +1,4 @@
-package com.lbole.demo.testing;
+package com.itaddr.demo.testing;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SetArgs;

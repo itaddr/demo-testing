@@ -1,9 +1,8 @@
-package com.lbole.demo.testing;
+package com.itaddr.demo.testing;
 
-import com.lbole.common.tools.utils.ByteUtil;
+import com.itaddr.common.tools.utils.ByteUtil;
 import org.junit.Test;
 import sun.misc.Cleaner;
-import sun.nio.ch.FileChannelImpl;
 
 import java.io.File;
 import java.io.IOException;

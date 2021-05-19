@@ -1,4 +1,4 @@
-package com.lbole.demo.testing;
+package com.itaddr.demo.testing;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;

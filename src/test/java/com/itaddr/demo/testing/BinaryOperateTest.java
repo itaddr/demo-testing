@@ -1,6 +1,6 @@
-package com.lbole.demo.testing;
+package com.itaddr.demo.testing;
 
-import com.lbole.common.tools.utils.ByteUtil;
+import com.itaddr.common.tools.utils.ByteUtil;
 import org.junit.Test;
 
 /**
