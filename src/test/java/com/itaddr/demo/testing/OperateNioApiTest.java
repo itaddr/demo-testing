@@ -14,6 +14,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -312,7 +315,24 @@ public class OperateNioApiTest {
         
         
     }
-    
+
+    @Test
+    public void test07() {
+        File dirFile = new File("D:/workspaces/javaspaces/ads-ui/public/upload/operate/material");
+        System.out.println(dirFile.exists());
+        System.out.println(dirFile.getPath());
+
+        System.out.println();
+        Path dirPath = Paths.get("D:/workspaces/javaspaces/ads-ui", "/public/upload/operate/material");
+        System.out.println(Files.exists(dirPath));
+        System.out.println(dirPath.toString());
+
+        System.out.println();
+        Path filePath = dirPath.resolve("NGcwoa9KWdC4dtMi7ZF6fAOqAIw=.png");
+        System.out.println(Files.exists(filePath));
+        System.out.println(filePath);
+    }
+
     public static class ReadAndWrite implements ReadableByteChannel, WritableByteChannel {
         
         private boolean open = true;

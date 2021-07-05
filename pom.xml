@@ -30,19 +30,38 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <scala.version>2.12.11</scala.version>
-        <maven.test.skip>true</maven.test.skip>
+<!--        <maven.test.skip>true</maven.test.skip>-->
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13</junit.version>
         <common-tools.version>1.0.0</common-tools.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.25</slf4j.version>
         <commons.lang3.version>3.5</commons.lang3.version>
         <hadoop.version>3.0.0</hadoop.version>
+        <!-- opencv -->
+        <javacpp.version>1.5.5</javacpp.version>
+        <ffmpeg.version>4.3.2</ffmpeg.version>
+        <opencv.version>4.5.1</opencv.version>
+        <javacpp.platform.android-arm>android-arm</javacpp.platform.android-arm>
+        <javacpp.platform.android-arm64>android-arm64</javacpp.platform.android-arm64>
+        <javacpp.platform.android-x86>android-x86</javacpp.platform.android-x86>
+        <javacpp.platform.android-x86_64>android-x86_64</javacpp.platform.android-x86_64>
+        <javacpp.platform.ios-arm64>ios-arm64</javacpp.platform.ios-arm64>
+        <javacpp.platform.ios-x86_64>ios-x86_64</javacpp.platform.ios-x86_64>
+        <javacpp.platform.linux-x86>linux-x86</javacpp.platform.linux-x86>
+        <javacpp.platform.linux-x86_64>linux-x86_64</javacpp.platform.linux-x86_64>
+        <javacpp.platform.linux-armhf>linux-armhf</javacpp.platform.linux-armhf>
+        <javacpp.platform.linux-arm64>linux-arm64</javacpp.platform.linux-arm64>
+        <javacpp.platform.linux-pcc64le>linux-pcc64le</javacpp.platform.linux-pcc64le>
+        <javacpp.platform.macosx-arm64>macosx-arm64</javacpp.platform.macosx-arm64>
+        <javacpp.platform.macosx-x86_64>macosx-x86_64</javacpp.platform.macosx-x86_64>
+        <javacpp.platform.windows-x86>windows-x86</javacpp.platform.windows-x86>
+        <javacpp.platform.windows-x86_64>windows-x86_64</javacpp.platform.windows-x86_64>
 
     </properties>
     
     <dependencies>
-        
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -169,7 +188,98 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.12.3</version>
         </dependency>
-    
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>6.0.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.14</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-jpeg</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-bmp</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tiff</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-psd</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${ffmpeg.version}-${javacpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${ffmpeg.version}-${javacpp.version}</version>
+            <classifier>${javacpp.platform.windows-x86_64}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${ffmpeg.version}-${javacpp.version}</version>
+            <classifier>${javacpp.platform.linux-x86_64}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}-${javacpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}-${javacpp.version}</version>
+            <classifier>${javacpp.platform.windows-x86_64}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}-${javacpp.version}</version>
+            <classifier>${javacpp.platform.linux-x86_64}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>${javacpp.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.jpedal</groupId>
+            <artifactId>OpenViewerFX</artifactId>
+            <version>6.6.14</version>
+        </dependency>
+
+
     </dependencies>
     
     <repositories>
@@ -244,15 +354,67 @@
     
     <build>
         <plugins>
-            
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>default-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>default-resources</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testResources</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             
@@ -268,9 +430,56 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
                             <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>install</goal>
                         </goals>
                     </execution>
                 </executions>
