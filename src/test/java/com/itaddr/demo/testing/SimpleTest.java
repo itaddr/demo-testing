@@ -5,9 +5,10 @@ import com.itaddr.common.tools.utils.CodecUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.StringJoiner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -107,7 +108,25 @@ public class SimpleTest {
 //        System.out.println(re1);
 //        String re2 = ByteUtil.toBase64String(CodecUtil.sha256(bytes2));
 //        System.out.println(re2);
-        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(1624539500L * 1000)));
+//        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(1624539500L * 1000)));
+
+
+        DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").toFormatter();
+        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").toFormatter();
+        System.out.println(LocalDate.parse("2020-07-14", dateFormatter));
+//        System.out.println(LocalDateTime.parse("2020-07-14", dateTimeFormatter));
+        System.out.println(LocalDate.parse("2020-07-14", dateFormatter).toEpochDay());
+
+    }
+
+    @Test
+    public void test04() {
+//        StringJoiner joiner = new StringJoiner(", ", "GROUP BY\n\t", "");
+//        joiner.add("aaa").add("bbb").add("ddd");
+//        System.out.println(joiner.length());
+//        System.out.println(joiner.toString());
+//        System.out.println(Pattern.compile("^pangu-(test|stg)-ui.*").matcher("pangu-test-ui-h5").find());
+        System.out.println(ByteUtil.toBase64String(CodecUtil.randomBytes(8)));
     }
 
 }
