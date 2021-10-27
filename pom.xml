@@ -30,6 +30,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <scala.version>2.12.11</scala.version>
+        <groovy.version>3.0.9</groovy.version>
 <!--        <maven.test.skip>true</maven.test.skip>-->
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <junit.version>4.13</junit.version>
@@ -76,6 +77,13 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-reflect</artifactId>
             <version>${scala.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+            <type>pom</type>
         </dependency>
         
         <dependency>
@@ -444,6 +452,36 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.13.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>execute</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scripts>
+                        <script><![CDATA[// your script here ]]></script>
+                    </scripts>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <!-- any version of Groovy \>= 1.5.0 should work here -->
+                        <!-- 这个变量用来控制groovy编译版本 -->
+                        <version>${groovy.version}</version>
+                        <type>pom</type>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
