@@ -126,7 +126,14 @@ public class SimpleTest {
 //        System.out.println(joiner.length());
 //        System.out.println(joiner.toString());
 //        System.out.println(Pattern.compile("^pangu-(test|stg)-ui.*").matcher("pangu-test-ui-h5").find());
-        System.out.println(ByteUtil.toBase64String(CodecUtil.randomBytes(8)));
+//        System.out.println("Long Max: " + Long.MAX_VALUE + ", length: " + String.valueOf(Long.MAX_VALUE).length());
+//        System.out.println("2286-11-21 01:46:39.000: 9999999999999");
+
+        System.out.printf("'A' ascii = %d, 'Z' ascii = %d\n", 'A' & 0xff, 'Z' & 0xff);
+        System.out.printf("'a' ascii = %d, 'z' ascii = %d\n", 'a' & 0xff, 'z' & 0xff);
+        System.out.printf("'a' - 'A' = %d\n", ('a' & 0xff) - ('A' & 0xff));
+        System.out.printf("'f' - 32 = %c\n", ('f' & 0xff) - 32);
+
     }
 
 }
