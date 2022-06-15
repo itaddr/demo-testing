@@ -15,7 +15,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
  */
 class BaseTest01 {
     
-    @Test
+    @Test1
     @throws(classOf[Exception]) def helloWorld(): Unit = {
         println("hello world")
         println("------------------")
@@ -23,13 +23,13 @@ class BaseTest01 {
         println("------------------")
     }
     
-    @Test
+    @Test1
     @throws(classOf[Exception]) def test01(): Unit = {
         val languageToCount = Map("Scala" -> 10, "Java" -> 20, "Ruby" -> 5)
         println(languageToCount.map { case (_, count) => count + 1 }.toSeq)
     }
     
-    @Test
+    @Test1
     @throws(classOf[Exception]) def test02(): Unit = {
         val var1 = Seq(1, 2, 3, 4, 5)
         val var2 = ArrayBuffer(1, 2, 3, 4, 5) += 6
@@ -40,7 +40,7 @@ class BaseTest01 {
         println(var3)
     }
     
-    @Test
+    @Test1
     @throws(classOf[Exception]) def test03(): Unit = {
         val caseBean = CaseBean01(1, "CaseBean01")
         val baseBean = new BaseBean01(2, "BaseBean02", 18)

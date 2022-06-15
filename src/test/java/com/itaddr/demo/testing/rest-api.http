@@ -1,0 +1,29 @@
+
+### 注释
+POST http://localhost:10004/sign/getTaskConfig?terminalType=2
+Content-Type: application/json
+
+# 注释
+{
+  "activityId": 1,
+  "pgameId": 1,
+  "areaId": 1,
+  "userId": 1,
+  "userName": "111111",
+  "roleId": "600101",
+  "roleName": "600AAA"
+}
+
+> {% client.global.set("code111", response.status); %}
+
+### ddd
+POST http://localhost:80/api/item
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="field-name"; filename="file.txt"
+
+< ./relative/path/to/local_file.txt
+--WebAppBoundary--
+
+###

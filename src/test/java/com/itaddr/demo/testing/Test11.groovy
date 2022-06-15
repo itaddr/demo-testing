@@ -23,7 +23,6 @@ println "stdout: ${proc.in.text}" // *out* from the external program is *in* for
 //DOCKER_TAG="${proc.in.text}"
 
 
-#!/usr/bin/env groovy
 //def sout = new StringBuilder()
 //def serr = new StringBuilder()
 //def proc = "mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.artifactId -q -DforceStdout -f /home/jenkins/home/workspace/pipeline-test/pom.xml".execute()
@@ -33,7 +32,6 @@ println "stdout: ${proc.in.text}" // *out* from the external program is *in* for
 //PROJECT_NAMES = sout.toString()
 
 
-#!/usr/bin/env groovy
 //def proc = "mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.artifactId -q -DforceStdout -f /home/jenkins/home/workspace/pipeline-test/pom.xml".execute()
 //proc.waitForOrKill(30000)
 //def result = proc.in.text

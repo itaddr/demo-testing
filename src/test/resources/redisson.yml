@@ -1,0 +1,21 @@
+---
+singleServerConfig:
+  idleConnectionTimeout: 10000
+  connectTimeout: 10000
+  timeout: 3000
+  retryAttempts: 3
+  retryInterval: 1500
+  password: Cache^by123
+  clientName: test-1001
+  address: "redis://192.168.1.222:6386"
+  subscriptionsPerConnection: 5 #单个连接最大订阅数量
+  subscriptionConnectionMinimumIdleSize: 1
+  subscriptionConnectionPoolSize: 50
+  connectionMinimumIdleSize: 32
+  connectionPoolSize: 64
+  database: 0
+  dnsMonitoringInterval: 5000L
+threads: 0
+nettyThreads: 0
+#codec: !<org.redisson.codec.FstCodec> {}
+transportMode: NIO

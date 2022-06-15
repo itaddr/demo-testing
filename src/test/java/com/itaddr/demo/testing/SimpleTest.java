@@ -1,14 +1,23 @@
 package com.itaddr.demo.testing;
 
 import com.itaddr.common.tools.utils.ByteUtil;
+import com.itaddr.common.tools.utils.CodecUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -141,11 +150,330 @@ public class SimpleTest {
 //        System.out.println("Long Max: " + Long.MAX_VALUE + ", length: " + String.valueOf(Long.MAX_VALUE).length());
 //        System.out.println("2286-11-21 01:46:39.000: 9999999999999");
 
-        System.out.printf("'A' ascii = %d, 'Z' ascii = %d\n", 'A' & 0xff, 'Z' & 0xff);
-        System.out.printf("'a' ascii = %d, 'z' ascii = %d\n", 'a' & 0xff, 'z' & 0xff);
-        System.out.printf("'a' - 'A' = %d\n", ('a' & 0xff) - ('A' & 0xff));
-        System.out.printf("'f' - 32 = %c\n", ('f' & 0xff) - 32);
+//        System.out.printf("'A' ascii = %d, 'Z' ascii = %d\n", 'A' & 0xff, 'Z' & 0xff);
+//        System.out.printf("'a' ascii = %d, 'z' ascii = %d\n", 'a' & 0xff, 'z' & 0xff);
+//        System.out.printf("'a' - 'A' = %d\n", ('a' & 0xff) - ('A' & 0xff));
+//        System.out.printf("'f' - 32 = %c\n", ('f' & 0xff) - 32);
+
+//        System.out.println(ByteUtil.toLowerHexString(CodecUtil.randomBytes(8)));
+//        System.out.println(UUID.randomUUID().toString());
+//        System.out.println(System.currentTimeMillis());
+        System.out.println(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void test05() throws IOException {
+        final String outputFilePath = "E:\\workspaces\\星图相关设备指标脚本\\debezium_dwd_200_pangu_atrb_device_reg_20211111.sql";
+        final DateTimeFormatter dateTimeFormatter1 = new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter();
+        final DateTimeFormatter dateTimeFormatter2 = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").toFormatter();
+        final DateTimeFormatter dateTimeFormatter3 = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").toFormatter();
+        final String sqlTemp = "INSERT INTO debezium_dwd_200_pangu_atrb_device_reg_20211111 (`kid`, `data_tag`, `reg_day`, `uuid`, `game_main`, `atrb_day`, `reg_time`, `year`, `month`, `week`, `hour`, `game_sub`, `os`, `chl_main`, `chl_sub`, `chl_base`, " +
+                "`ip`, `province`, `city`, `country`, `username`, `ptype`, `ctype`, `ad_account`, `operator`, `platform`, " +
+
+                "`fee_1`, `fee_2`, `fee_3`, `fee_4`, `fee_5`, `fee_6`, `fee_7`, `fee_8`, `fee_9`, `fee_10`, `fee_11`, `fee_12`, `fee_13`, `fee_14`, `fee_15`, `fee_16`, " +
+                "`fee_17`, `fee_18`, `fee_19`, `fee_20`, `fee_21`, `fee_22`,  `fee_23`, `fee_24`, `fee_25`, `fee_26`, `fee_27`, `fee_28`, `fee_29`, `fee_30`, `fee_45`, " +
+                "`fee_60`, `fee_75`, `fee_90`, `fee_120`, `fee_150`, `fee_180`, " +
+                "`givemoney_1`, `givemoney_2`, `givemoney_3`, `givemoney_4`, `givemoney_5`, `givemoney_6`, `givemoney_7`, `givemoney_8`, `givemoney_9`, `givemoney_10`, `givemoney_11`, `givemoney_12`, `givemoney_13`, `givemoney_14`, `givemoney_15`, `givemoney_16`, " +
+                "`givemoney_17`, `givemoney_18`, `givemoney_19`, `givemoney_20`, `givemoney_21`, `givemoney_22`,  `givemoney_23`, `givemoney_24`, `givemoney_25`, `givemoney_26`, `givemoney_27`, `givemoney_28`, `givemoney_29`, `givemoney_30`, `givemoney_45`, " +
+                "`givemoney_60`, `givemoney_75`, `givemoney_90`, `givemoney_120`, `givemoney_150`, `givemoney_180`, " +
+                "`fee_total`, `fee_week`, `fee_month`, `givemoney_total`, `givemoney_week`, `givemoney_month`, `first_pay_day`, `first_pay_time`, " +
+
+                "`is_2_retention`, `is_3_retention`, `is_4_retention`, `is_5_retention`, `is_6_retention`, `is_7_retention`, `is_8_retention`, `is_9_retention`, `is_10_retention`, `is_11_retention`, `is_12_retention`, `is_13_retention`, `is_14_retention`, `is_15_retention`, `is_16_retention`, " +
+                "`is_17_retention`, `is_18_retention`, `is_19_retention`, `is_20_retention`, `is_21_retention`, `is_22_retention`, `is_23_retention`, `is_24_retention`, `is_25_retention`, `is_26_retention`, `is_27_retention`, `is_28_retention`, `is_29_retention`,  `is_30_retention`, " +
+                "`latest_username`," +
+                "`create_time`, `op_tag`, `op_version`, `spread_type`, `settle_type`) " +
+                "VALUES ('%s', %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', " +
+
+                "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, " +
+                "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, " +
+                "%f, %f, %f, %f, %f, %f, %d, %d," +
+
+                "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%s', '%s', %d, %d, %d, '%s');";
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        try (PrintWriter out = new PrintWriter(new FileOutputStream(outputFilePath))) {
+            for (int i = 0; i < appchls.length; ++i) {
+                final long pgid = Long.parseLong(appchls[i][0]), gameid = Long.parseLong(appchls[i][1]);
+                final String parentchl = appchls[i][2], chl = appchls[i][3], appchl = appchls[i][4], advertiserId = appchls[i][5];
+                final LocalDateTime currentDateTime = LocalDateTime.parse(appchls[i][6], dateTimeFormatter3);
+                final LocalDate currentDate = currentDateTime.toLocalDate();
+
+                Object[] args = new Object[143];
+                int kid_count = 60 + random.nextInt(40);
+                for (int j = 0; j < kid_count; ++j) {
+                    final String _uuid = UUID.randomUUID().toString();
+                    final int day = Integer.parseInt(currentDateTime.toLocalDate().format(dateTimeFormatter1));
+                    final String[] ips = _ips[random.nextInt(_ips.length - 1)];
+
+                    int idx = 0;
+
+                    args[idx++] = String.format("%s-%d-%d", _uuid, pgid, day); // String kid = String.format("%s-%d-%d", _uuid, pgid, day);
+                    args[idx++] = 1; // int data_tag = 1; // TODO: 未知
+                    final int reg_day = Integer.parseInt(currentDate.format(dateTimeFormatter1));
+                    args[idx++] = reg_day; // int reg_day;
+                    args[idx++] = _uuid; // String uuid = _uuid;
+                    args[idx++] = pgid; // long game_main = pgid;
+                    args[idx++] = 90; // int atrb_day = 90;
+                    final long reg_time = currentDateTime.toInstant(OffsetDateTime.now().getOffset()).toEpochMilli();
+                    args[idx++] = reg_time; // long reg_time;
+                    args[idx++] = String.valueOf(currentDate.getYear()); // String year = String.valueOf(currentDate.getYear());
+                    args[idx++] = currentDate.getYear() + "-" + currentDate.getMonthValue(); // String month = currentDate.getYear() + "-" + currentDate.getMonthValue();
+                    args[idx++] = currentDate.with(DayOfWeek.MONDAY).format(dateTimeFormatter2) + "~" + currentDate.with(DayOfWeek.SUNDAY).format(dateTimeFormatter2); // String week = currentDate.with(DayOfWeek.MONDAY).format(dateTimeFormatter1) + "~" + currentDate.with(DayOfWeek.SUNDAY).format(dateTimeFormatter1);
+                    args[idx++] = String.valueOf(currentDateTime.getHour()); // String hour = String.valueOf(currentDateTime.getHour());
+                    args[idx++] = gameid; // long game_sub = gameid;
+                    args[idx++] = 0; // int os = 0;
+                    args[idx++] = parentchl; // String chl_main = parentchl;
+                    args[idx++] = chl; // String chl_sub = chl;
+                    args[idx++] = appchl; // String chl_base = appchl;
+                    args[idx++] = ips[0]; // String ip = ips[0];
+                    args[idx++] = ips[1]; // String province = ips[1];
+                    args[idx++] = ips[2];  // String city = ips[2];
+                    args[idx++] = ips[3]; // String country = ips[3];
+                    final String username = random.nextBoolean() ? ips[5] : StringUtils.EMPTY;
+                    args[idx++] = username; // String username;
+                    args[idx++] = appchl; // String ptype = appchl;
+                    args[idx++] = 1; // int ctype = 1;
+                    args[idx++] = advertiserId; // String adAccount = advertiserId;
+                    args[idx++] = ips[4]; // String operator = ips[4];
+                    args[idx++] = "1"; // String platform = "1";
+
+                    double[] fees = new double[37], givemoneys = new double[fees.length];
+                    double fee_total = 0.00, fee_week = 0.00, fee_month = 0.00, givemoney_total = 0.00, givemoney_week = 0.00, givemoney_month = 0.00;
+                    for (int m = 0; m < fees.length; ++m) {
+                        double fee = fees[m] = random.nextDouble(30), givemoney = givemoneys[m] = random.nextDouble(20);
+                        fee_total += fee;
+                        givemoney_total += givemoney;
+                        if (m < 7) {
+                            fee_week += fee;
+                            givemoney_week += givemoney;
+                        }
+                        if (m < 30) {
+                            fee_month += fee;
+                            givemoney_month += givemoney;
+                        }
+                    }
+                    for (double fee : fees) {
+                        args[idx++] = fee;
+                    }
+                    for (double givemoney : givemoneys) {
+                        args[idx++] = givemoney;
+                    }
+                    args[idx++] = fee_total;
+                    args[idx++] = fee_week;
+                    args[idx++] = fee_month;
+                    args[idx++] = givemoney_total;
+                    args[idx++] = givemoney_week;
+                    args[idx++] = givemoney_month;
+                    args[idx++] = reg_day; // int first_pay_day = reg_day;
+                    args[idx++] = reg_time; // long first_pay_time = reg_time;
+
+                    for (int m = 0; m < retentions.length; ++m) {
+                        args[idx++] = random.nextInt(6);
+                    }
+                    args[idx++] = username; // String latest_username = username;
+
+                    args[idx++] = appchls[i][6] + ".999"; // String createTime = appchls[i][6] + ".999";
+                    args[idx++] = 1; //int op_tag = 1;
+                    args[idx++] = 999; //int op_version = 999;
+                    args[idx++] = 2; //int spread_type = 2;
+                    args[idx++] = appchls[i][7]; //String settle_type = appchls[i][7];
+
+                    String sql = String.format(sqlTemp, args);
+//                    System.out.println(sql);
+
+                    out.println(sql);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void test06() throws FileNotFoundException {
+        final String outputFilePath = "E:\\workspaces\\星图相关设备指标脚本\\debezium_dwd_200_pangu_atrb_device_register_login_20211111.sql";
+        final DateTimeFormatter dateTimeFormatter1 = new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter();
+        final DateTimeFormatter dateTimeFormatter2 = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").toFormatter();
+        final DateTimeFormatter dateTimeFormatter3 = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").toFormatter();
+        final String sqlTemp = "INSERT INTO debezium_dwd_200_pangu_atrb_device_register_login_20211111 (`kid`, `data_tag`, `uuid`, `game_main`, `active_day`, `year`, `month`, `week`, `d_kid`, `d_uuid`, `d_game_main`, `d_game_sub`, `d_chl_main`, `d_chl_sub`, `d_chl_base`, " +
+                "`d_ad_account`, `d_reg_day`, `d_reg_time`, `d_ip`, `d_country`, `d_province`, `d_city`, `d_operator`, `d_os`, `d_atrb_day`, `fee`, `givemoney`, `create_time`, `op_tag`, `op_version`, `d_spread_type`, `d_settle_type`) " +
+                "VALUES ('%s', %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', %d, %d, %f, %f, '%s', %d, %d, %d, '%s');";
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        try (PrintWriter out = new PrintWriter(new FileOutputStream(outputFilePath))) {
+            for (int i = 0; i < appchls.length; ++i) {
+                final long pgid = Long.parseLong(appchls[i][0]), gameid = Long.parseLong(appchls[i][1]);
+                final String parentchl = appchls[i][2], chl = appchls[i][3], appchl = appchls[i][4], advertiserId = appchls[i][5];
+                final LocalDateTime currentDateTime = LocalDateTime.parse(appchls[i][6], dateTimeFormatter3);
+                final LocalDate currentDate = currentDateTime.toLocalDate();
+
+                Object[] args = new Object[36];
+                int kid_count = 60 + random.nextInt(40);
+                for (int j = 0; j < kid_count; ++j) {
+                    final String _uuid = UUID.randomUUID().toString();
+                    final int day = Integer.parseInt(currentDateTime.toLocalDate().format(dateTimeFormatter1));
+                    final String[] ips = _ips[random.nextInt(_ips.length - 1)];
+
+                    int idx = 0;
+
+                    String kid = String.format("%s-%d-%d", _uuid, pgid, day);
+                    args[idx++] = kid; // String kid;
+                    args[idx++] = 1; // int data_tag = 1;
+                    args[idx++] = _uuid; // String uuid = _uuid;
+                    args[idx++] = pgid; // long game_main = pgid;
+                    final int reg_day = Integer.parseInt(currentDate.format(dateTimeFormatter1));
+                    args[idx++] = reg_day; // int reg_day;
+                    args[idx++] = String.valueOf(currentDate.getYear()); // String year = String.valueOf(currentDate.getYear());
+                    args[idx++] = currentDate.getYear() + "-" + currentDate.getMonthValue(); // String month = currentDate.getYear() + "-" + currentDate.getMonthValue();
+                    args[idx++] = currentDate.with(DayOfWeek.MONDAY).format(dateTimeFormatter2) + "~" + currentDate.with(DayOfWeek.SUNDAY).format(dateTimeFormatter2); // String week = currentDate.with(DayOfWeek.MONDAY).format(dateTimeFormatter1) + "~" + currentDate.with(DayOfWeek.SUNDAY).format(dateTimeFormatter1);
+                    args[idx++] = kid; // int d_kid;
+                    args[idx++] = _uuid; // String d_uuid;
+                    args[idx++] = pgid; // long d_game_main;
+                    args[idx++] = gameid; // long d_game_sub;
+                    args[idx++] = parentchl; // long d_chl_main;
+                    args[idx++] = chl; // String d_chl_sub;
+                    args[idx++] = appchl; // String d_chl_base;
+                    args[idx++] = advertiserId; // String d_ad_account;
+                    args[idx++] = reg_day; // int d_reg_day;
+                    final long d_reg_time = currentDateTime.toInstant(OffsetDateTime.now().getOffset()).toEpochMilli();
+                    args[idx++] = d_reg_time; // long d_reg_time;
+                    args[idx++] = ips[0]; // d_ip;
+                    args[idx++] = ips[3]; // String d_country;
+                    args[idx++] = ips[1]; // String d_province;
+                    args[idx++] = ips[2]; // String d_city;
+                    args[idx++] = ips[4]; // String d_operator;
+                    args[idx++] = 0; // int d_os;
+                    args[idx++] = reg_day; // int d_atrb_day;
+                    args[idx++] = random.nextDouble(30); // double fee;
+                    args[idx++] = random.nextDouble(20); // double givemoney;
+                    args[idx++] = appchls[i][6] + ".999"; // String create_time;
+                    args[idx++] = 1; //int op_tag = 1;
+                    args[idx++] = 999; //int op_version = 999;
+                    args[idx++] = 2; //int spread_type = 2;
+                    args[idx++] = appchls[i][7]; //String settle_type = appchls[i][7];
+
+                    String sql = String.format(sqlTemp, args);
+//                    System.out.println(sql);
+
+                    out.println(sql);
+                }
+            }
+
+        }
 
     }
+
+    private String[][] appchls = {
+            {"53", "96", "54", "54x279", "54x279x96x101", "1685772240637967", "2021-12-19 09:22:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x102", "1672991346418688", "2021-12-19 09:54:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x103", "1672991346418688", "2021-12-19 10:32:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x104", "1672991346418688", "2021-12-19 10:33:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x105", "1672991346418688", "2021-12-19 13:11:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x106", "1672991346418688", "2021-12-19 13:40:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x107", "1672991346418688", "2021-12-19 14:12:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x108", "1672991346418688", "2021-12-19 14:44:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x109", "1672991346418688", "2021-12-19 15:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x110", "1672991346418688", "2021-12-19 15:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x111", "1672991346418688", "2021-12-20 08:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x112", "1672991346418688", "2021-12-20 09:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x113", "1672991346418688", "2021-12-20 10:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x114", "1672991346418688", "2021-12-20 11:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x115", "1672991346418688", "2021-12-20 12:36:22", "FIXED_PRICE"},
+            {"53", "96", "54", "54x279", "54x279x96x116", "1672991346418688", "2021-12-20 13:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x117", "1672991346418688", "2021-12-20 14:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x118", "1672991346418688", "2021-12-20 15:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x119", "1672991346418688", "2021-12-20 16:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x120", "1672991346418688", "2021-12-20 17:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x121", "1672991346418688", "2021-12-21 09:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x122", "1672991346418688", "2021-12-21 10:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x123", "1672991346418688", "2021-12-21 11:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x124", "1672991346418688", "2021-12-21 12:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x125", "1672991346418688", "2021-12-21 13:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x126", "1672991346418688", "2021-12-21 14:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x127", "1672991346418688", "2021-12-21 15:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x128", "1672991346418688", "2021-12-21 16:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x129", "1672991346418688", "2021-12-21 17:36:22", "CPM"},
+            {"53", "96", "54", "54x279", "54x279x96x130", "1672991346418688", "2021-12-21 18:36:22", "CPM"}
+    };
+
+    private String[][] _ips = {
+            {"60.10.254.221", "河北", "廊坊", "中国", "联通", "15909130400"},
+            {"123.64.253.23", "广东", "惠州", "中国", "铁通", "83081362908"},
+            {"120.216.250.215", "河南", "焦作", "中国", "移动", "810728146393"},
+            {"39.180.116.227", "浙江", "舟山", "中国", "移动", "81071292376"},
+            {"112.96.166.132", "广东", "广州", "中国", "联通", "13178879427"},
+            {"171.104.166.10", "广西", "百色", "中国", "电信", "15994699968"},
+            {"111.172.112.166", "湖北", "武汉", "中国", "电信", "810802160648"},
+            {"101.224.25.71", "上海", "上海", "中国", "电信", "p15545462233"},
+            {"42.226.9.241", "河南", "新乡", "中国", "联通", "lyt334455"},
+            {"39.162.172.219", "河南", "南阳", "中国", "移动", "15839982929"},
+            {"182.200.211.153", "辽宁", "沈阳", "中国", "电信", "x116043392"},
+            {"59.174.160.249", "湖北", "武汉", "中国", "电信", "810717108936"},
+            {"121.18.154.82", "河北", "保定", "中国", "联通", "83051755095"},
+            {"112.96.97.188", "广东", "广州", "中国", "联通", "80060644220"},
+            {"120.239.122.45", "广东", "云浮", "中国", "移动", "81022122672"},
+            {"119.147.145.6", "广东", "东莞", "中国", "电信", "h7759757"},
+            {"218.92.226.233", "江苏", "盐城", "中国", "电信", "810818674824"},
+            {"223.104.147.34", "江苏", "南京", "中国", "移动", "810816443688"},
+            {"113.109.21.175", "广东", "广州", "中国", "电信", "83040748105"},
+            {"183.226.244.233", "重庆", "重庆", "中国", "移动", "w4860881"},
+            {"220.169.232.122", "湖南", "衡阳", "中国", "电信", "sasa139"},
+            {"223.104.1.17", "广东", "广州", "中国", "移动", "hz8866062"},
+            {"36.104.27.64", "吉林", "长春", "中国", "电信", "80071446290"},
+            {"221.232.172.117", "湖北", "武汉", "中国", "电信", "13715062527"},
+            {"27.27.228.67", "湖北", "襄阳", "中国", "电信", "810817608030"},
+            {"221.195.61.107", "河北", "沧州", "中国", "联通", "81070619182"},
+            {"211.141.203.66", "安徽", "淮北", "中国", "移动", "lll3011999"},
+            {"61.158.148.106", "河南", "郑州", "中国", "联通", "81071175030"},
+            {"139.207.47.8", "四川", "成都", "中国", "电信", "YES000000"},
+            {"221.232.175.88", "湖北", "武汉", "中国", "电信", "810715103725"},
+            {"1.202.187.106", "北京", "北京", "中国", "电信", "15228441667"},
+            {"123.153.62.61", "浙江", "台州", "中国", "联通", "80031328182"},
+            {"223.117.158.193", "新疆", "伊犁", "中国", "移动", "w384111306"},
+            {"117.188.193.200", "贵州", "安顺", "中国", "移动", "810830338365"},
+            {"221.232.174.170", "湖北", "武汉", "中国", "电信", "17754428001"},
+            {"180.130.2.55", "云南", "昆明", "中国", "联通", "18581587753"},
+            {"220.164.36.30", "云南", "曲靖", "中国", "电信", "c17605659635"},
+            {"120.199.144.155", "浙江", "嘉兴", "中国", "移动", "810802162514"},
+            {"171.92.115.82", "四川", "达州", "中国", "电信", "15281729268"},
+            {"58.255.230.185", "广东", "茂名", "中国", "联通", "810719116012"},
+            {"1.196.180.50", "河南", "洛阳", "中国", "电信", "18003883070"},
+            {"218.3.249.42", "江苏", "徐州", "中国", "电信", "83060560148"},
+            {"223.167.33.27", "上海", "上海", "中国", "联通", "81071290542"},
+            {"36.157.34.44", "湖南", "岳阳", "中国", "移动", "810818721305"},
+            {"27.17.113.38", "湖北", "武汉", "中国", "电信", "qq1634378090"},
+            {"183.17.66.128", "广东", "深圳", "中国", "电信", "83081965061"},
+            {"223.86.198.26", "四川", "巴中", "中国", "移动", "8112107374"},
+            {"117.44.189.225", "江西", "南昌", "中国", "电信", "13699541958"},
+            {"218.92.226.232", "江苏", "盐城", "中国", "电信", "810816463195"},
+            {"117.136.7.235", "黑龙江", "哈尔滨", "中国", "移动", "83081464046"},
+            {"183.39.148.193", "广东", "深圳", "中国", "电信", "a133519"},
+            {"113.58.103.161", "海南", "海口", "中国", "联通", "810817628243"},
+            {"117.136.52.230", "湖北", "武汉", "中国", "移动", "810817544891"},
+            {"182.101.8.108", "江西", "南昌", "中国", "电信", "18870876253"},
+            {"59.174.161.161", "湖北", "武汉", "中国", "电信", "80121447663"},
+            {"183.23.75.251", "广东", "东莞", "中国", "电信", "83051757052"},
+            {"183.223.84.30", "四川", "广元", "中国", "移动", "8108231277184"},
+            {"113.234.23.51", "辽宁", "大连", "中国", "联通", "83083169803"},
+            {"61.167.117.167", "黑龙江", "大庆", "中国", "联通", "13604592100"},
+            {"222.90.214.181", "陕西", "西安", "中国", "电信", "80012147862"},
+            {"110.178.196.117", "山西", "太原", "中国", "电信", "810726137240"},
+            {"223.104.63.41", "广东", "深圳", "中国", "移动", "13823384451"},
+            {"211.94.229.75", "天津", "天津", "中国", "联通", "810817553565"},
+            {"117.174.77.212", "四川", "成都", "中国", "移动", "a1949116429"},
+            {"58.19.181.29", "湖北", "襄阳", "中国", "联通", "shiwan2332"},
+            {"119.131.47.213", "广东", "广州", "中国", "电信", "80103047493"},
+            {"223.96.200.215", "山东", "枣庄", "中国", "移动", "83051858532"},
+            {"218.75.207.194", "湖南", "株洲", "中国", "电信", "83042753718"},
+            {"59.174.160.118", "湖北", "武汉", "中国", "电信", "80121447662"},
+            {"223.146.36.151", "湖南", "衡阳", "中国", "电信", "15116881014"},
+            {"36.153.95.73", "江苏", "南京", "中国", "移动", "810816495575"},
+            {"58.48.30.216", "湖北", "武汉", "中国", "电信", "83041648290"}
+    };
+
+    private String[] pay_amount_columns = {"pay_amount_1", "pay_amount_2", "pay_amount_3", "pay_amount_4", "pay_amount_5", "pay_amount_6", "pay_amount_7", "pay_amount_8", "pay_amount_9", "pay_amount_10", "pay_amount_11", "pay_amount_12", "pay_amount_13", "pay_amount_14", "pay_amount_15",
+            "pay_amount_16", "pay_amount_17", "pay_amount_18", "pay_amount_19", "pay_amount_20", "pay_amount_21", "pay_amount_22", "pay_amount_23", "pay_amount_24", "pay_amount_25", "pay_amount_26", "pay_amount_27", "pay_amount_28", "pay_amount_29", "pay_amount_30", "pay_amount_45",
+            "pay_amount_60", "pay_amount_75", "pay_amount_90", "pay_amount_120", "pay_amount_150", "pay_amount_180"};
+
+    private String[] retentions = {"is_2_retention", "is_3_retention", "is_4_retention", "is_5_retention", "is_6_retention", "is_7_retention", "is_8_retention", "is_9_retention", "is_10_retention", "is_11_retention", "is_12_retention", "is_13_retention", "is_14_retention", "is_15_retention",
+            "is_16_retention", "is_17_retention", "is_18_retention", "is_19_retention", "is_20_retention", "is_21_retention", "is_22_retention", "is_23_retention", "is_24_retention", "is_25_retention", "is_26_retention", "is_27_retention", "is_28_retention", "is_29_retention", "is_30_retention"};
 
 }
