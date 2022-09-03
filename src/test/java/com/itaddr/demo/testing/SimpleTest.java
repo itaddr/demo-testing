@@ -158,7 +158,8 @@ public class SimpleTest {
 //        System.out.println(ByteUtil.toLowerHexString(CodecUtil.randomBytes(8)));
 //        System.out.println(UUID.randomUUID().toString());
 //        System.out.println(System.currentTimeMillis());
-        System.out.println(Integer.MAX_VALUE);
+//        System.out.println(Integer.MAX_VALUE);
+        System.out.println(Pattern.compile("^[A-Za-z0-9]{3,50}$").matcher("").matches());
     }
 
     @Test

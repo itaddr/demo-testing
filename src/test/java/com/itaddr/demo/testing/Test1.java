@@ -15,14 +15,19 @@ import org.redisson.config.TransportMode;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
-import java.util.Base64;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -228,6 +233,7 @@ public class Test1 {
     @Test
     public void test06() throws InterruptedException {
 
+
         Config config = new Config().setTransportMode(Epoll.isAvailable() ? TransportMode.EPOLL : TransportMode.NIO);
         config.useSingleServer()
                 .setIdleConnectionTimeout(10000)
@@ -249,40 +255,79 @@ public class Test1 {
         final String namespace = "test";
         final int serialNoBits = 16;
         final int symbolBits = 5;
-        final DistributedKey gen = new DistributedKey(redissonClient);
-        long beginMillis = System.currentTimeMillis();
-        for (int i = 0; i < 20000; ++i) {
-            long key = gen.key(namespace, serialNoBits, symbolBits);
-            System.out.printf("key=%d, time=%d, symbol=%d, serial=%d\n", key, key >>> serialNoBits + symbolBits, (key >>> symbolBits) & (~(-1 << serialNoBits)), key & (~(-1 << symbolBits)));
-        }
-        System.out.println(System.currentTimeMillis() - beginMillis);
-        Thread.sleep(2000);
-        gen.destroy();
-//        System.out.println(new Date((1734955580103694L >>> 20) * 1000));
-//        System.out.println(ByteUtil.toBinaryString(1734955580103694L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955579286541L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955578454023L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955577649166L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955576851464L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955575973902L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955575218183L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955574463502L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955573669902L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955572838472L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955558616077L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955557724173L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955556938765L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955556163597L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955555343437L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955554608135L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955553743950L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955552915464L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955552124936L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955551344653L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955525801992L & 0b11111111111111111111L));
-//        System.out.println(ByteUtil.toBinaryString(1734955524936718L & 0b11111111111111111111L));
+        final GenerateKeyService gen = new GenerateKeyService(redissonClient);
 
-        redissonClient.shutdown(NumberUtils.INTEGER_ZERO, 15, TimeUnit.SECONDS);
+//        final List<Long> results = new ArrayList<>(400000);
+        final Map<Long, Long> resultMap = new Hashtable<>();
+        final ConcurrentLinkedQueue<Long> resultQueue = new ConcurrentLinkedQueue<>();
+
+        final int threadNum = 10, loopNum = 20000;
+
+        final CountDownLatch countDownLatch = new CountDownLatch(threadNum);
+        long beginMillis = System.currentTimeMillis();
+        for (int th = 0; th < threadNum; ++th) {
+            new Thread(() -> {
+                for (int i = 0; i < loopNum; ++i) {
+                    long key = gen.key(namespace, symbolBits, serialNoBits);
+//                    System.out.printf("key=%d, time=%d, symbol=%d, serial=%d\n", key, key >>> serialNoBits + symbolBits, (key >>> serialNoBits) & (~(-1 << symbolBits)), key & ~(-1 << serialNoBits));
+                    resultMap.put(key, key);
+                    resultQueue.add(key);
+                }
+                countDownLatch.countDown();
+            }).start();
+        }
+        countDownLatch.await();
+        long times = System.currentTimeMillis() - beginMillis;
+
+//        for (int i = 0; i < threadNum * loopNum; ++i) {
+//            long key = gen.key(namespace, symbolBits, serialNoBits);
+//            System.out.printf("key=%d, time=%d, symbol=%d, serial=%d\n", key, key >>> serialNoBits + symbolBits, (key >>> serialNoBits) & (~(-1 << symbolBits)), key & ~(-1 << serialNoBits));
+//            results.put(key, key);
+//        }
+//        long times = System.currentTimeMillis() - beginMillis;
+
+        System.out.printf("loop=%d, size=%d, dup_size=%d, time=%dms\n", threadNum * loopNum, resultMap.size(), resultQueue.size(), times);
+
+        gen.destroy();
+
+        redissonClient.shutdown(NumberUtils.INTEGER_ZERO, 30, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void test07() {
+        // 15 ~ 25
+//        double avgVal = 10, minVal = 15, maxVal = 25;
+//        final BigDecimal avgDec = new BigDecimal(String.valueOf(avgVal));
+//        double min = Double.MAX_VALUE, max = 0;
+//        for (int i = 0; i < 10; ++i) {
+//            double val = ThreadLocalRandom.current().nextGaussian();
+//            if (val < min) {
+//                min = val;
+//            }
+//            if (val > max) {
+//                max = val;
+//            }
+//            final BigDecimal randVal = new BigDecimal(String.valueOf(val));
+//            System.out.println(randVal.multiply(new BigDecimal(String.valueOf(Math.sqrt(maxVal - minVal)))).add(avgDec).setScale(0, BigDecimal.ROUND_HALF_UP));
+//        }
+//        System.out.printf("min = %f, max = %f\n", min, max);
+
+        final BigDecimal avgValue = new BigDecimal(150);
+        final BigDecimal minValue = new BigDecimal(100);
+        final BigDecimal maxValue = new BigDecimal(200);
+
+        for (int i = 0; i < 100; ++i) {
+            // 获取标准的动态分布随机值
+            final BigDecimal standard = new BigDecimal(String.valueOf(ThreadLocalRandom.current().nextGaussian()));
+            // 最大值减去最小值然后开方获取标准值的缩放比例
+            final BigDecimal sqrt = new BigDecimal(String.valueOf(Math.sqrt(maxValue.subtract(minValue).doubleValue())));
+            // 标准值乘以缩放比例，然后加上平均值
+            BigDecimal resultValue = standard.multiply(sqrt).add(avgValue);
+            resultValue = resultValue.compareTo(minValue) < 0 ? minValue : resultValue;
+            resultValue = resultValue.compareTo(maxValue) > 0 ? maxValue : resultValue;
+            System.out.printf("standard=%f, sqrt=%f, result=%f\n", standard.doubleValue(), sqrt.doubleValue(), resultValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+
     }
 
 }

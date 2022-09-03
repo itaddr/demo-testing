@@ -37,9 +37,9 @@ public class RedissonTest {
                 .setTimeout(3000)
                 .setRetryAttempts(3)
                 .setRetryInterval(1500)
-                .setPassword("Cache^by123")
+//                .setPassword("Cache^by123")
                 .setClientName("test-1001")
-                .setAddress("redis://192.168.1.222:6386")
+                .setAddress("redis://192.168.1.222:6379")
                 .setSubscriptionsPerConnection(5)
                 .setSubscriptionConnectionPoolSize(50)
                 .setConnectionMinimumIdleSize(32)
@@ -53,7 +53,7 @@ public class RedissonTest {
 
     @After
     public void after() {
-        this.redissonClient.shutdown(NumberUtils.INTEGER_ZERO, 10, TimeUnit.SECONDS);
+        this.redissonClient.shutdown(NumberUtils.INTEGER_ZERO, 30, TimeUnit.SECONDS);
         this.redissonClient = null;
         this.redissonReactiveClient.shutdown();
     }
@@ -119,6 +119,20 @@ public class RedissonTest {
         } else {
             throw new TimeoutException("生成分布式key时需要获取的锁超时");
         }
+    }
+
+    @Test
+    public void test03() {
+        final String userKeyPattern = "group_result:user:majiaqi:*";
+        final String roleKeyPattern = "group_result:role:1:majiaqi_003:*";
+        final RKeys keys = redissonClient.getKeys();
+        System.out.println();
+        System.out.println();
+        keys.getKeysStreamByPattern(userKeyPattern, 200).forEach(System.out::println);
+        keys.getKeysStreamByPattern(roleKeyPattern, 200).forEach(System.out::println);
+//        keys.getKeysByPattern(roleKeyPattern, 100).forEach(System.out::println);
+        System.out.println();
+        System.out.println();
     }
 
 }

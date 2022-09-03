@@ -1,16 +1,17 @@
 package com.itaddr.demo.testing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.StringCodec;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DistributedKey {
+@Slf4j
+public class GenerateKeyService {
 
     private static final String GENERATE_KEY_PREFIX = "distributed:key:";
 
@@ -24,9 +25,10 @@ public class DistributedKey {
     private final RedissonClient redissonClient;
     private ScheduledExecutorService housekeeperService;
 
-    public DistributedKey(RedissonClient redissonClient) {
+    public GenerateKeyService(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
         this.housekeeperService = new ScheduledThreadPoolExecutor(NumberUtils.INTEGER_ONE, (run) -> new Thread(run, "housekeeperService"));
+        log.info("初始化GenerateKeyService成功");
     }
 
     /**
@@ -37,33 +39,28 @@ public class DistributedKey {
      * @param symbolBits
      * @return
      */
-    public long key(String namespace, int serialNoBits, int symbolBits) {
+    public long key(String namespace, int symbolBits, int serialNoBits) {
         if (stopped.get()) { // 生成器已被释放
             throw new IllegalStateException("分布式Key生成器已被释放");
         }
         final int maxSerialNo = ~(-1 << serialNoBits), maxSymbol = ~(-1 << symbolBits);
-//        namespace = String.format("%s-%02dbit-%02dbit", namespace, serialNoBits, symbolBits);
-        long currentSeconds = System.currentTimeMillis() / 1000L;
-        final KeyGenerator keyGen = this.getKeyGenerator(namespace, maxSymbol, currentSeconds);
 
-        int serialNo;
-        synchronized (keyGen.namespace) {
-            if (keyGen.beforeSeconds == currentSeconds) {
-                if (keyGen.serialNo >= maxSerialNo) {
-                    while (keyGen.beforeSeconds == currentSeconds) {
-                        currentSeconds = this.currentTimeMillisAfterBlock() / 1000L;
-                    }
-                    serialNo = keyGen.serialNo = 0;
-                } else {
-                    serialNo = keyGen.serialNo = ++keyGen.serialNo;
+        synchronized (namespace = namespace.intern()) {
+            final KeyGenerator keyGen = this.getKeyGenerator(namespace, maxSymbol);
+
+            long currentSeconds = System.currentTimeMillis() / 1000L;
+            if (keyGen.serialNo >= maxSerialNo) {
+                while (keyGen.beforeSeconds == currentSeconds) {
+                    currentSeconds = this.currentTimeMillisAfterBlock() / 1000L;
                 }
+                keyGen.serialNo = 0;
             } else {
-                serialNo = keyGen.serialNo = 0;
+                ++keyGen.serialNo;
             }
             keyGen.beforeSeconds = currentSeconds;
-        }
 
-        return currentSeconds << serialNoBits + symbolBits | (long) serialNo << symbolBits | keyGen.symbol;
+            return currentSeconds << serialNoBits + symbolBits | (long) keyGen.symbol << serialNoBits | keyGen.serialNo;
+        }
     }
 
     private long currentTimeMillisAfterBlock() {
@@ -75,9 +72,21 @@ public class DistributedKey {
         return System.currentTimeMillis();
     }
 
-    private KeyGenerator getKeyGenerator(String namespace, int maxSymbol, long epoch) {
+    private KeyGenerator getKeyGenerator(String namespace, int maxSymbol) {
+        final long currentEpoch = System.currentTimeMillis();
         final ConcurrentMap<String, KeyGenerator> keyGeneratorTables = this.keyGeneratorTables;
-        return keyGeneratorTables.compute(namespace, (key, value) -> null != value && epoch - value.epoch <= 30 ? value : this.createKeyGenerator(namespace, maxSymbol, epoch));
+
+        KeyGenerator keyGen = keyGeneratorTables.get(namespace);
+        if (null == keyGen) {
+            keyGen = this.createKeyGenerator(namespace, maxSymbol, currentEpoch);
+            keyGeneratorTables.put(namespace, keyGen);
+        } else if (currentEpoch - keyGen.epoch > 30000) {
+            log.warn("[sessionId={}, namespace={}]下的符号[symbol={}]超过30秒为续期，已过期", this.sessionId, namespace, keyGen.namespace);
+            keyGen = this.createKeyGenerator(namespace, maxSymbol, currentEpoch);
+            keyGeneratorTables.put(namespace, keyGen);
+        }
+
+        return keyGen;
     }
 
     private KeyGenerator createKeyGenerator(String namespace, int maxSymbol, long epoch) {
@@ -86,9 +95,10 @@ public class DistributedKey {
             final String key = GENERATE_KEY_PREFIX + namespace + ':' + symbol;
             final RBucket<String> bucket = redissonClient.getBucket(key, StringCodec.INSTANCE);
             if (bucket.trySet(sessionId, SYMBOL_EXPIRE_SEC, TimeUnit.SECONDS)) {
-                final KeyGenerator keyGenerator = new KeyGenerator(symbol, namespace, epoch);
+                final KeyGenerator keyGen = new KeyGenerator(symbol, namespace, epoch);
                 housekeeperService.schedule(() -> this.continueKeyGenerator(namespace), CONTINUE_INTERVAL_SEC, TimeUnit.SECONDS);
-                return keyGenerator;
+                log.info("成功创建[sessionId={}, namespace={}]下的符号[symbol={}]", this.sessionId, namespace, keyGen.namespace);
+                return keyGen;
             } else if (symbol == maxSymbol) {
                 throw new IllegalStateException("keyGeneratorSymbol已被耗尽，最大等待[" + SYMBOL_EXPIRE_SEC + "s]之后，无效的keyGeneratorSymbol会被释放");
             }
@@ -101,14 +111,16 @@ public class DistributedKey {
         }
         try {
             final ConcurrentMap<String, KeyGenerator> keyGeneratorTables = this.keyGeneratorTables;
-            final long currentSeconds = System.currentTimeMillis() / 1000L;
+            final long currentTimeMillis = System.currentTimeMillis();
 
             final KeyGenerator keyGen = keyGeneratorTables.get(namespace);
             if (null == keyGen) { // keyGenerator不存在，直接退出并不再续期
                 return;
-            } else if (currentSeconds - keyGen.epoch > 30) { // keyGenerator已超时，直接退出并不再续期
+            } else if (currentTimeMillis - keyGen.epoch > 3000) { // keyGenerator已超时，直接退出并不再续期
+                log.warn("[sessionId={}, namespace={}]下的符号[symbol={}]超过30秒为续期，已过期", this.sessionId, namespace, keyGen.namespace);
                 return;
-            } else if (currentSeconds - keyGen.beforeSeconds > 2 * 60 * 60L) { // keyGenerator已超过2h未被使用，直接退出并不再续期
+            } else if (currentTimeMillis / 1000L - keyGen.beforeSeconds > 2 * 60 * 60L) { // keyGenerator已超过2h未被使用，直接退出并不再续期
+                log.warn("[sessionId={}, namespace={}]下的符号[symbol={}]已超过2小时未使用，不在续期", this.sessionId, namespace, keyGen.namespace);
                 return;
             }
 
@@ -125,7 +137,7 @@ public class DistributedKey {
 
             // 开始keyGenerator续期操作
             bucket.expire(SYMBOL_EXPIRE_SEC, TimeUnit.SECONDS);
-            keyGen.epoch = currentSeconds;
+            keyGen.epoch = currentTimeMillis;
         } catch (Exception ignored) {
         }
         housekeeperService.schedule(() -> this.continueKeyGenerator(namespace), CONTINUE_INTERVAL_SEC, TimeUnit.SECONDS);
@@ -135,23 +147,25 @@ public class DistributedKey {
         if (stopped.compareAndSet(false, true)) {
             // 清除当前进程占用的machineId
             final String sessionId = this.sessionId;
-            long epoch = System.currentTimeMillis() / 1000L;
-            for (Map.Entry<String, KeyGenerator> entry : keyGeneratorTables.entrySet()) {
-                final String namespace = entry.getKey();
-                final KeyGenerator keyGen = entry.getValue();
-                final String key = GENERATE_KEY_PREFIX + namespace + ':' + keyGen.symbol;
-                final RBucket<String> bucket = redissonClient.getBucket(key, StringCodec.INSTANCE);
-                if (bucket.isExists() && bucket.get().equals(sessionId) && epoch - keyGen.epoch <= 30) {
-                    bucket.delete();
+            long currentEpoch = System.currentTimeMillis();
+
+            keyGeneratorTables.forEach((namespace, keyGen) -> {
+                synchronized (keyGen.namespace) {
+                    final String key = GENERATE_KEY_PREFIX + namespace + ':' + keyGen.symbol;
+                    final RBucket<String> bucket = redissonClient.getBucket(key, StringCodec.INSTANCE);
+                    if (bucket.isExists() && bucket.get().equals(sessionId) && currentEpoch - keyGen.epoch <= 30000) {
+                        bucket.delete();
+                    }
                 }
-            }
+            });
             keyGeneratorTables.clear();
 
             // 释放定时任务执行器
             this.housekeeperService.shutdown();
-            if (this.housekeeperService.awaitTermination(15, TimeUnit.SECONDS)) {
+            if (this.housekeeperService.awaitTermination(60, TimeUnit.SECONDS)) {
                 this.housekeeperService = null;
             }
+            log.info("释放GenerateKeyService成功");
         }
     }
 
