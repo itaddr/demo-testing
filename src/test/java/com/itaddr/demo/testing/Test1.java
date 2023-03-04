@@ -1,20 +1,15 @@
 package com.itaddr.demo.testing;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.itaddr.common.tools.utils.ByteUtil;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.SetArgs;
-import io.lettuce.core.api.sync.RedisCommands;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.hbase.thirdparty.io.netty.channel.epoll.Epoll;
-import org.apache.kerby.util.HexUtil;
+import com.itaddr.common.tools.utils.CodecUtil;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-import org.redisson.config.TransportMode;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -24,11 +19,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author 马嘉祺
@@ -73,37 +69,8 @@ public class Test1 {
         System.out.printf("b=%d, s=%d, c=%c, i=%x, l=%x\n", b, s, c, i, l);
     }
 
-    public void test01() {
-        UUID uuid = UUID.randomUUID();
-        int sequence = uuid.clockSequence();
-        long timestamp = uuid.timestamp();
-        int variant = uuid.variant();
-        int version = uuid.version();
-        long node = uuid.node();
-
-        long leastSignificantBits = uuid.getLeastSignificantBits();
-        long mostSignificantBits = uuid.getMostSignificantBits();
-
-
-        Jedis jedis = null;
-        SetParams params = new SetParams().nx().ex(30);
-        String set = jedis.set("", "", params);
-
-
-        RedisClient client = null;
-        RedisCommands<String, String> sync = client.connect().sync();
-        SetArgs args = new SetArgs().nx().ex(30);
-        sync.set("", "", args);
-
-        sync.watch("");
-        String multi = sync.multi();
-
-        sync.unwatch();
-
-    }
-
     @Test
-    public void tet02() {
+    public void tet01() {
         DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").toFormatter();
 
         int roleType = 1, timeType = 2, ValidDays = 30;
@@ -146,7 +113,7 @@ public class Test1 {
     }
 
     @Test
-    public void test03() {
+    public void test02() {
 //        System.out.println(ZoneOffset.UTC);
 //        System.out.println(ZoneOffset.systemDefault().getClass());
 //        System.out.println(ZoneOffset.systemDefault());
@@ -166,135 +133,7 @@ public class Test1 {
     }
 
     @Test
-    public void test04() {
-//        System.out.println(Pattern.compile("^(http|https)://(.*)/[0-9]+[/]?$").matcher("https://www.chengzijianzhan.com/tetris/page/1634409577604099/").find());
-        LocalDateTime dateTime1 = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
-        LocalDateTime dateTime2 = LocalDateTime.now();
-        LocalDateTime dateTime3 = LocalDateTime.of(2020, 1, 1, 8, 0, 0);
-        long timestamp1 = dateTime1.toInstant(OffsetTime.now().getOffset()).toEpochMilli();
-        long timestamp2 = dateTime2.toInstant(OffsetTime.now().getOffset()).toEpochMilli();
-        long timestamp3 = dateTime3.toInstant(OffsetTime.now().getOffset()).toEpochMilli();
-
-        System.out.println(timestamp1);
-        System.out.println(timestamp2);
-        System.out.println(timestamp3);
-
-        System.out.println();
-        System.out.printf("%d, %x, %s\n", timestamp1 - timestamp3, timestamp1 - timestamp3, Long.toBinaryString(timestamp1 - timestamp3));
-        System.out.printf("%d, %x, %s\n", timestamp2 - timestamp3, timestamp2 - timestamp3, Long.toBinaryString(timestamp2 - timestamp3));
-
-        System.out.println();
-        long value1 = timestamp1 << 21L;
-        long value2 = timestamp2 << 21L;
-        System.out.printf("%d, %x, %s\n", value1, value1, Long.toBinaryString(value1));
-        System.out.printf("%d, %x, %s\n", value2, value2, Long.toBinaryString(value2));
-
-        System.out.println();
-        System.out.printf("%d, %d\n", timestamp1 << 17, (timestamp2 / 1000) << 22);
-
-    }
-
-    @Test
-    public void test05() throws Exception {
-//        LocalDateTime now = LocalDateTime.now().minusDays(2);
-//        DayOfWeek dayOfWeek = now.getDayOfWeek();
-//        System.out.println(dayOfWeek.getValue());
-
-//        System.out.println(LocalDate.parse("2022-04-27", DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay().toInstant(OffsetTime.now().getOffset()).toEpochMilli());
-//        LocalDateTime start = LocalDateTime.parse("2022-04-27T08:22:32", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        LocalDateTime end = LocalDateTime.parse("2022-04-29T08:22:31", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-//        System.out.println(Duration.between(start, end).toDays());
-//        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
-//        LocalDate start = LocalDate.parse("2022-05-04", DateTimeFormatter.ISO_LOCAL_DATE);
-//        LocalDate end = LocalDate.parse("2022-06-07", DateTimeFormatter.ISO_LOCAL_DATE);
-//        Period between = Period.between(end, start);
-//        System.out.println(between.getDays());
-//        System.out.println(start.toEpochDay() + " " + end.toEpochDay());
-//        System.out.println(LocalDate.parse("1970-01-01", DateTimeFormatter.ISO_LOCAL_DATE).toEpochDay());
-
-        final String cpuId = CpuKey.getCpuId();
-        final int processId = CpuKey.getProcessId();
-        System.out.printf("%s-%d\n", cpuId, processId);
-        System.out.printf("%s%04X\n", cpuId, processId);
-        System.out.println();
-
-        byte[] cpuIdBytes = HexUtil.hex2bytes(cpuId);
-        byte[] keyBytes = new byte[cpuIdBytes.length + 2];
-        System.arraycopy(cpuIdBytes, 0, keyBytes, 0, cpuIdBytes.length);
-        keyBytes[keyBytes.length - 2] = (byte) (processId >>> 8);
-        keyBytes[keyBytes.length - 1] = (byte) processId;
-
-        System.out.println(ByteUtil.toLowerHexString(keyBytes));
-        System.out.println(Base64.getEncoder().encodeToString(keyBytes));
-        System.out.println(Base64.getUrlEncoder().encodeToString(keyBytes));
-    }
-
-    @Test
-    public void test06() throws InterruptedException {
-
-
-        Config config = new Config().setTransportMode(Epoll.isAvailable() ? TransportMode.EPOLL : TransportMode.NIO);
-        config.useSingleServer()
-                .setIdleConnectionTimeout(10000)
-                .setConnectTimeout(10000)
-                .setTimeout(3000)
-                .setRetryAttempts(3)
-                .setRetryInterval(1500)
-                .setPassword("Cache^by123")
-                .setClientName("test-1001")
-                .setAddress("redis://192.168.1.222:6386")
-                .setSubscriptionsPerConnection(5)
-                .setSubscriptionConnectionPoolSize(50)
-                .setConnectionMinimumIdleSize(32)
-                .setConnectionPoolSize(64)
-                .setDatabase(0)
-                .setDnsMonitoringInterval(5000);
-        final RedissonClient redissonClient = Redisson.create(config);
-
-        final String namespace = "test";
-        final int serialNoBits = 16;
-        final int symbolBits = 5;
-        final GenerateKeyService gen = new GenerateKeyService(redissonClient);
-
-//        final List<Long> results = new ArrayList<>(400000);
-        final Map<Long, Long> resultMap = new Hashtable<>();
-        final ConcurrentLinkedQueue<Long> resultQueue = new ConcurrentLinkedQueue<>();
-
-        final int threadNum = 10, loopNum = 20000;
-
-        final CountDownLatch countDownLatch = new CountDownLatch(threadNum);
-        long beginMillis = System.currentTimeMillis();
-        for (int th = 0; th < threadNum; ++th) {
-            new Thread(() -> {
-                for (int i = 0; i < loopNum; ++i) {
-                    long key = gen.key(namespace, symbolBits, serialNoBits);
-//                    System.out.printf("key=%d, time=%d, symbol=%d, serial=%d\n", key, key >>> serialNoBits + symbolBits, (key >>> serialNoBits) & (~(-1 << symbolBits)), key & ~(-1 << serialNoBits));
-                    resultMap.put(key, key);
-                    resultQueue.add(key);
-                }
-                countDownLatch.countDown();
-            }).start();
-        }
-        countDownLatch.await();
-        long times = System.currentTimeMillis() - beginMillis;
-
-//        for (int i = 0; i < threadNum * loopNum; ++i) {
-//            long key = gen.key(namespace, symbolBits, serialNoBits);
-//            System.out.printf("key=%d, time=%d, symbol=%d, serial=%d\n", key, key >>> serialNoBits + symbolBits, (key >>> serialNoBits) & (~(-1 << symbolBits)), key & ~(-1 << serialNoBits));
-//            results.put(key, key);
-//        }
-//        long times = System.currentTimeMillis() - beginMillis;
-
-        System.out.printf("loop=%d, size=%d, dup_size=%d, time=%dms\n", threadNum * loopNum, resultMap.size(), resultQueue.size(), times);
-
-        gen.destroy();
-
-        redissonClient.shutdown(NumberUtils.INTEGER_ZERO, 30, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void test07() {
+    public void test03() {
         // 15 ~ 25
 //        double avgVal = 10, minVal = 15, maxVal = 25;
 //        final BigDecimal avgDec = new BigDecimal(String.valueOf(avgVal));
@@ -328,6 +167,101 @@ public class Test1 {
             System.out.printf("standard=%f, sqrt=%f, result=%f\n", standard.doubleValue(), sqrt.doubleValue(), resultValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
         }
 
+    }
+
+    @Test
+    public void test04() {
+        char[] ee = {
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                '-'
+        };
+        System.out.println((int) '-');
+        System.out.println((int) '0');
+        System.out.println((int) 'A');
+        System.out.println((int) 'a');
+        /*final Pattern pattern = Pattern.compile("^__delayed_message_[0-9]+(sec|min|hour|day)$");
+        System.out.println(pattern.matcher("__delayed_message_dd").matches());
+        System.out.println(pattern.matcher("__delayed_message_33").matches());
+        System.out.println(pattern.matcher("__delayed_message_01d").matches());
+        System.out.println(pattern.matcher("__delayed_message_01min").matches());*/
+        // 15 351201  42
+        byte[] bytes = {15, 0};
+        bytes = ArrayUtils.addAll(bytes, "351201".getBytes(StandardCharsets.UTF_8));
+        bytes = ArrayUtils.add(bytes, (byte) 0);
+        bytes = ArrayUtils.addAll(bytes, "3977963503979175936".getBytes(StandardCharsets.UTF_8));
+        bytes = ArrayUtils.add(bytes, (byte) 0);
+        bytes = ArrayUtils.add(bytes, (byte) 42);
+        System.out.println(Base64.getUrlEncoder().encodeToString(CodecUtil.md5(bytes)));
+    }
+
+    @Test
+    public void test05() {
+        final String appSecret = "7ea83effc511ab2a21665b2b13ff2f82565ac2a0"; // 签名密钥
+        final JSONObject beans = JSON.parseObject("{\n" +
+                "  \"gameId\": 1,\n" +
+                "  \"timestamp\": 16654344656,\n" +
+                "  \"username\": \"98504983\",\n" +
+                "  \"areaId\": \"804938\",\n" +
+                "  \"areaName\": \"S001\",\n" +
+                "  \"roleId\": \"2202392039483904\",\n" +
+                "  \"roleName\": \"superman\",\n" +
+                "  \"roleExp\": \"\",\n" +
+                "  \"roleLevel\": 99,\n" +
+                "  \"changeTime\": 16654344656,\n" +
+                "  \"roleVip\": \"\",\n" +
+                "  \"ucid\": \"7438ac98f7de9387d89f7c6bb764de84\",\n" +
+                "  \"sign\": \"3e521885585590de1d7923a4610a9c4d\"\n" +
+                "}");
+
+        final String plaintext = beans.entrySet().stream().filter(e -> !"sign".equals(e.getKey())).sorted(Map.Entry.comparingByKey()).map(e -> e.getKey() + '=' + e.getValue()).collect(Collectors.joining("&", StringUtils.EMPTY, appSecret)); // 拼接明文
+        System.out.println(plaintext); // 签名明文
+
+        final String sign = ByteUtil.toLowerHexString(CodecUtil.md5(plaintext.getBytes(StandardCharsets.UTF_8)));
+        System.out.println(sign); // 签名结果
+    }
+
+    @Test
+    public void test06() {
+        try (RandomAccessFile accessFile = new RandomAccessFile("D:\\plaintext_test.txt", "rw")) {
+            System.out.println(accessFile.length());
+            final byte[] buffers = new byte[1024 * 1024];
+            for (int len; (len = accessFile.read(buffers)) > 0; ) {
+                System.out.println(new String(buffers, 0, len, StandardCharsets.UTF_8));
+            }
+            System.out.println();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*try (final FileChannel fileChannel = FileChannel.open(Paths.get("D:\\plaintext_test.txt"), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
+            System.out.println(fileChannel.size());
+            final ByteBuffer byteBuffer = ByteBuffer.allocate(1024 * 1024);
+            for (int len; (len = fileChannel.read(byteBuffer)) > 0; byteBuffer.clear()) {
+                System.out.println(new String(byteBuffer.array(), 0, len, StandardCharsets.UTF_8));
+            }
+            System.out.println();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    @Test
+    public void test07() {
+        final long oneDayTimeMs = 24 * 60 * 60 * 1000L;
+        final long timeZoneMs = TimeZone.getDefault().getRawOffset();
+        final long currentTimeMs = System.currentTimeMillis();
+
+        final long onlyTimeMs = currentTimeMs % oneDayTimeMs;
+        final long timeZoneVal = onlyTimeMs >= timeZoneMs ? oneDayTimeMs : 0L;
+        final long onlyDateMs = currentTimeMs - onlyTimeMs - timeZoneMs + timeZoneVal;
+
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        System.out.printf("start = %s, end = %s\n", sdf.format(new Date(onlyDateMs)), sdf.format(new Date(onlyDateMs + oneDayTimeMs - 1L)));
+
+        final long baseTimeMs = LocalDateTime.of(2023, 1, 1, 0, 0, 0, 0).toInstant(OffsetTime.now().getOffset()).toEpochMilli();
+        System.out.printf("baseTimeMs=%d, %d", baseTimeMs, currentTimeMs - baseTimeMs);
     }
 
 }

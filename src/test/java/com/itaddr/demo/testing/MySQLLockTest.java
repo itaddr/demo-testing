@@ -30,14 +30,14 @@ public class MySQLLockTest {
         int areaId = 1;
         String areaName = "1";
         Date createAreaTime = new Date();
-        final String updateSql = "UPDATE parent_game_area SET area_name = ?, create_area_time = IFNULL(create_area_time, ?) WHERE parent_game_id = ? AND area_id = ?";
-        final String selectSql = "SELECT * FROM parent_game_area WHERE parent_game_id = ? AND area_id = ?";
 
         final Connection connection = this.getConnection();
         try {
+            // 开启事务
             connection.setAutoCommit(false);
 
-            PreparedStatement statement = connection.prepareStatement(updateSql);
+            // 执行一次更新，利用行锁实现分布式锁效果
+            PreparedStatement statement = connection.prepareStatement("UPDATE parent_game_area SET area_name = ?, create_area_time = IFNULL(create_area_time, ?) WHERE parent_game_id = ? AND area_id = ?");
             statement.setString(1, areaName);
             statement.setTimestamp(2, new java.sql.Timestamp(createAreaTime.getTime()));
             statement.setInt(3, pgameId);
@@ -48,7 +48,8 @@ public class MySQLLockTest {
 
 //            Thread.sleep(5000);
 
-            statement = connection.prepareStatement(selectSql);
+            // 执行一次查询，读取到的是最新数据
+            statement = connection.prepareStatement("SELECT * FROM parent_game_area WHERE parent_game_id = ? AND area_id = ?");
             statement.setInt(1, pgameId);
             statement.setInt(2, areaId);
             final ResultSet resultSet = statement.executeQuery();
@@ -59,8 +60,10 @@ public class MySQLLockTest {
             }
             statement.close();
 
+            // 阻塞当前线程，继续持有行锁
             Thread.sleep(15000);
 
+            // 提交事务，并且释放锁
             connection.commit();
             System.out.println(System.currentTimeMillis() / 1000);
         } catch (Exception e) {
@@ -78,14 +81,14 @@ public class MySQLLockTest {
         int areaId = 1;
         String areaName = "2";
         Date createAreaTime = new Date();
-        final String updateSql = "UPDATE parent_game_area SET area_name = ?, create_area_time = IFNULL(create_area_time, ?) WHERE parent_game_id = ? AND area_id = ?";
-        final String selectSql = "SELECT * FROM parent_game_area WHERE parent_game_id = ? AND area_id = ?";
 
         final Connection connection = this.getConnection();
         try {
+            // 开启事务
             connection.setAutoCommit(false);
 
-            PreparedStatement statement = connection.prepareStatement(updateSql);
+            // 执行一次更新，利用行锁实现分布式锁效果（锁争用，被阻塞）
+            PreparedStatement statement = connection.prepareStatement("UPDATE parent_game_area SET area_name = ?, create_area_time = IFNULL(create_area_time, ?) WHERE parent_game_id = ? AND area_id = ?");
             statement.setString(1, areaName);
             statement.setTimestamp(2, new java.sql.Timestamp(createAreaTime.getTime()));
             statement.setInt(3, pgameId);
@@ -93,7 +96,8 @@ public class MySQLLockTest {
             statement.execute();
             System.out.printf("test01更新完成: areaName = %s, createAreaTime = %s\n", areaName, sdf.format(createAreaTime));
 
-            statement = connection.prepareStatement(selectSql);
+            // 执行一次查询
+            statement = connection.prepareStatement("SELECT * FROM parent_game_area WHERE parent_game_id = ? AND area_id = ?");
             statement.setInt(1, pgameId);
             statement.setInt(2, areaId);
             final ResultSet resultSet = statement.executeQuery();
@@ -104,6 +108,7 @@ public class MySQLLockTest {
             }
             statement.close();
 
+            // 提交事务，并释放行锁
             connection.commit();
             System.out.println(System.currentTimeMillis() / 1000);
         } catch (Exception e) {

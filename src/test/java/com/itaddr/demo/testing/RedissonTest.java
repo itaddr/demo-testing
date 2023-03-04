@@ -135,4 +135,17 @@ public class RedissonTest {
         System.out.println();
     }
 
+    @Test
+    public void test04() {
+        final RSemaphore semaphore = redissonClient.getSemaphore("");
+        boolean exists = semaphore.isExists();
+
+        semaphore.addPermits(10);
+        if (semaphore.tryAcquire()) {
+
+        }
+        /*final RPermitExpirableSemaphore permitExpirableSemaphore = redissonClient.getPermitExpirableSemaphore("");
+        permitExpirableSemaphore.addPermits(10);*/
+    }
+
 }

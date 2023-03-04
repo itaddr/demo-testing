@@ -16,15 +16,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>com.itaddr.demo</groupId>
     <artifactId>demo-testing</artifactId>
     <version>1.0.0</version>
-    
+
     <name>Demo testing</name>
     <url>http://www.lbole.com/</url>
     <description>作为功能验证测试</description>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -61,7 +61,7 @@
         <javacpp.platform.windows-x86_64>windows-x86_64</javacpp.platform.windows-x86_64>
 
     </properties>
-    
+
     <dependencies>
 
         <dependency>
@@ -86,33 +86,33 @@
             <version>${groovy.version}</version>
             <type>pom</type>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.itaddr.common</groupId>
             <artifactId>common-tools</artifactId>
             <version>${common-tools.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -170,7 +170,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    
+
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
@@ -323,11 +323,38 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.25</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.shyiko</groupId>
+            <artifactId>mysql-binlog-connector-java</artifactId>
+            <version>0.21.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.75</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.2.3</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-async</artifactId>
+            <version>3.8.2</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>4.2.3</version>
+        </dependency>
 
     </dependencies>
-    
+
     <repositories>
-        
+
         <repository>
             <id>aliyun-public</id>
             <name>Aliyun Public(central+jcenter)</name>
@@ -368,7 +395,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        
+
         <repository>
             <id>cloudera-repos</id>
             <name>Cloudera Repositories</name>
@@ -393,9 +420,9 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-    
+
     </repositories>
-    
+
     <build>
         <plugins>
 
@@ -461,7 +488,7 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
@@ -558,7 +585,7 @@
                     </execution>
                 </executions>
             </plugin>
-        
+
         </plugins>
     </build>
 
